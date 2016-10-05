@@ -52,24 +52,23 @@ func TestAccSoftLayerVirtualGuest_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"softlayer_virtual_guest.terraform-acceptance-test-1", "user_data", "{\"value\":\"newvalue\"}"),
 					resource.TestCheckResourceAttr(
+						"softlayer_virtual_guest.terraform-acceptance-test-1", "tags.0", "collectd"),
+					resource.TestCheckResourceAttr(
 						"softlayer_virtual_guest.terraform-acceptance-test-1", "local_disk", "false"),
 					resource.TestCheckResourceAttr(
 						"softlayer_virtual_guest.terraform-acceptance-test-1", "dedicated_acct_host_only", "true"),
-					// TODO: As agreed, will be enabled when VLAN support is implemented: https://github.com/TheWeatherCompany/softlayer-go/issues/3
-					//					resource.TestCheckResourceAttr(
-					//						"softlayer_virtual_guest.terraform-acceptance-test-1", "frontend_vlan_id", "1085155"),
-					//					resource.TestCheckResourceAttr(
-					//						"softlayer_virtual_guest.terraform-acceptance-test-1", "backend_vlan_id", "1085157"),
 				),
 			},
 
 			{
-				Config:  testAccCheckSoftLayerVirtualGuestConfig_userDataUpdate,
+				Config:  testAccCheckSoftLayerVirtualGuestConfig_update,
 				Destroy: false,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSoftLayerVirtualGuestExists("softlayer_virtual_guest.terraform-acceptance-test-1", &guest),
 					resource.TestCheckResourceAttr(
 						"softlayer_virtual_guest.terraform-acceptance-test-1", "user_data", "updatedData"),
+					resource.TestCheckResourceAttr(
+						"softlayer_virtual_guest.terraform-acceptance-test-1", "tags.0", "mesos-master"),
 				),
 			},
 
@@ -211,12 +210,13 @@ resource "softlayer_virtual_guest" "terraform-acceptance-test-1" {
     ram = 1024
     disks = [25, 10, 20]
     user_data = "{\"value\":\"newvalue\"}"
+    tags = ["collectd"]
     dedicated_acct_host_only = true
     local_disk = false
 }
 `
 
-const testAccCheckSoftLayerVirtualGuestConfig_userDataUpdate = `
+const testAccCheckSoftLayerVirtualGuestConfig_update = `
 resource "softlayer_virtual_guest" "terraform-acceptance-test-1" {
     name = "terraform-test"
     domain = "bar.example.com"
@@ -228,6 +228,7 @@ resource "softlayer_virtual_guest" "terraform-acceptance-test-1" {
     ram = 1024
     disks = [25, 10, 20]
     user_data = "updatedData"
+    tags = ["mesos-master"]
     dedicated_acct_host_only = true
     local_disk = false
 }
